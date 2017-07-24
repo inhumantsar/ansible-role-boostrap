@@ -1,27 +1,21 @@
 ---
-bootstrap_users: []
-  # - user_name: adoe
-  # - user_name: bdoe
-  #   user_state: absent
-  # - user_name: cdoe
-  #   user_authorized_keys:
-  #     - 'ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA5lGUET74UQ/MIJRpvdalskjdfhkuy893rhlkjhsdBZGDseO9s9Qu7v+q17DIByKu1ClENgv7a4hPhPzE+m53mNaFsn12j6AgBXs6stTF+KawsPZ9nJoQrXSSZBfEzPIMQq9vEtgskqgUy0Y7Zse4fLKJ5OnNOaT3TYKQPPnnSw/0V9NbG+EvRHxhsm3h9GxMCNEF+nWtVgzngfRhRtA3SQrvYRPWsKMaTl/GAgDrA0XhHPUgzZa89WMx7QYidOGSbJ/dwXiD+eIQ0/H5VxeraWrL+XhMUl2YYXOKiKtTUR3TeIKC2L4ufccpwq7QuK7TFJnEzUUVNQw== cdoe@localhost'
-
-bootstrap_packages: []
-  # - git
-  # - sudo
-  # - vim
-
-bootstrap_pypi_packages: []
-
-# these are applied immediately
-# (ie: during image creation)
-bootstrap_ansible_roles: []
-
 # this playbook and its vars are set up as a startup service
 # (ie: after image creation)
 bootstrap_playbook_repo: ''
 bootstrap_playbook_vars: {}
+bootstrap_playbook_content:           # written to playbook.yml if repo is blank
+  - name: Dummy playbook
+    hosts: all
+    connection: local
+    become: true
+    tasks:
+      - debug:
+          msg: "Empty bootstrap playbook is empty..."
+bootstrap_playbook_requirements: []   # [{'src': 'inhumantsar.local-user'}, ...]. only used if repo is blank
+
+# these probably don't need changing
+bootstrap_playbook_path: '/opt/bootstrap/playbook'
+
 
 # for the startup service
 systemd_service_name: 'ansible-boot'
@@ -29,10 +23,15 @@ systemd_service_Unit_Description: 'Run ansible-pull at boot to do post-launch co
 # -b: become root (ie: run with sudo)
 # -f: run even if the playbook repo couldn't be updated, for running behind firewalls
 # -s 15: sleep a random amount of time between 0 and 15s to spread out git operations on large spin-ups
-systemd_service_ExecStart: |
+systemd_service_Service_ExecStart: |
   ansible-pull \
   -b -f -s 15 \
   -c local -i "localhost," \
   -e "@/opt/bootstrap/playbook_vars.yml" \
   -U {{ bootstrap_playbook_repo }} \
   -d /opt/bootstrap/playbook
+
+# the systemd role fails under docker because d-bus operations aren't permitted.
+# since it's reasonable to assume that the systemd role is tested (at least as far
+# as we need it to be for basic CI. ANYWAY, this lets us ignore errors on the task.
+bootstrap_docker_testing: false

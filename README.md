@@ -2,7 +2,7 @@
 
 ## What?
 
-Drops local users, installs pre-req packages, sets up a systemd service to run a specified Ansible playbook on boot.
+Sets up a systemd service to run a specified Ansible playbook on boot.
 
 ## Why?
 

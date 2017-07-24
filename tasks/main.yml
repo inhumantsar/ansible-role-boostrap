@@ -1,57 +1,50 @@
 ---
-# common bootstrapping tasks
-- debug: var='{{ item }}'
-  with_items: '{{ bootstrap_users }}'
-
-# - name: create users
-#   include_role: name=local-user
-#   vars: '{{ item | default({}) }}'
-#   with_items: '{{ bootstrap_users }}'
-
-- name: install software pre-reqs
-  package: '{{ item }}'
-  with_items: '{{ bootstrap_packages }}'
-
-- name: install python pre-reqs
-  package: '{{ item }}'
-  with_items: '{{ bootstrap_pypi_packages }}'
-
-- name: install pre-req ansible roles
-  command: 'ansible-galaxy install {{ item }}'
-  with_items: '{{ bootstrap_ansible_roles }}'
-
-- name: run pre-req ansible roles
-  include_role: name='{{ item }}'
-  with_items: '{{ bootstrap_ansible_roles }}'
-
 # set up system to perform last-mile configuration after first boot
 # skip if there's no playbook repo set.
 - name: install post-imaging playbook for use later
   git:
     repo: '{{ bootstrap_playbook_repo }}'
-    dest: /opt/bootstrap/playbook
+    dest: '{{bootstrap_playbook_path}}'
   when: 'bootstrap_playbook_repo != ""'
+
+- name: create playbook directory when not cloning repo
+  file:
+    path: '{{bootstrap_playbook_path}}'
+    mode: 'u=rw,g=r,o=r'
+    state: directory
+  when: 'bootstrap_playbook_repo == ""'
+
+- name: write playbook file when not cloning repo
+  copy:
+    dest: '{{bootstrap_playbook_path}}/playbook.yml'
+    content: '{{bootstrap_playbook_content|to_yaml}}'
+    mode: 'u=rw,g=r,o=r'
+  when: 'bootstrap_playbook_repo == ""'
+
+- name: write requirements file when not cloning repo (and there are reqs to write)
+  copy:
+    path: '{{bootstrap_playbook_path}}/requirements.yml'
+    content: '{{bootstrap_playbook_requirements|to_yaml}}'
+    mode: 'u=rw,g=r,o=r'
+  when:
+    - 'bootstrap_playbook_repo == ""'
+    - 'bootstrap_playbook_requirements != []'
 
 - name: check for requirements file in post-imaging playbook
-  stat: path=/opt/bootstrap/playbook/requirements.yml
+  stat: path='{{bootstrap_playbook_path}}/requirements.yml'
   register: stat_reqs
-  when: 'bootstrap_playbook_repo != ""'
 
 - name: install post-imaging playbook pre-requisites
-  command: 'ansible-galaxy install -r /opt/bootstrap/playbook/requirements.yml'
+  command: 'ansible-galaxy install -r {{bootstrap_playbook_path}}/requirements.yml'
   when:
     - 'stat_reqs.stat.exists == True'
-    - 'bootstrap_playbook_repo != ""'
 
 - name: drop vars file for post-launch playbook to use
   copy:
     content: '{{ bootstrap_playbook_vars | to_yaml }}'
-    dest: '/opt/bootstrap/playbook_vars.yml'
-  when: 'bootstrap_playbook_repo != ""'
+    dest: '{{bootstrap_playbook_path}}_vars.yml'
 
-# i got rid of the block surrounding everything from "set up system to perform..."
-# i got rid of the vars in this block
-# i got rid of the when.
-# still, i get this error: ERROR! this task 'include_role' has extra params, which is only allowed in the following modules: command, win_command, shell, win_shell, script, include, include_vars, add_host, group_by, set_fact, raw, meta
+# this will always fail under docker because systemd
 - name: drop systemd service to do post-launch configuration
-  include_role: systemd-service
+  include_role: name=tumf.systemd-service
+  when: 'bootstrap_docker_testing != true'

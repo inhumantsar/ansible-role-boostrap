@@ -1,6 +1,6 @@
 galaxy_info:
   author: Shaun Martin
-  description: Drops local users, installs pre-req packages, sets up a systemd service to run a specified Ansible playbook on boot.
+  description: Sets up a systemd service to run a specified Ansible playbook on boot.
 
   # If the issue tracker for your role is not on github, uncomment the
   # next line and provide a value
