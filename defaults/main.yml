@@ -24,7 +24,7 @@ systemd_service_Unit_Description: 'Run ansible-pull at boot to do post-launch co
 # -f: run even if the playbook repo couldn't be updated, for running behind firewalls
 # -s 15: sleep a random amount of time between 0 and 15s to spread out git operations on large spin-ups
 systemd_service_Service_ExecStart: |
-  ansible-pull \
+  /usr/bin/ansible-pull \
   -b -f -s 15 \
   -c local -i "localhost," \
   -e "@/opt/bootstrap/playbook_vars.yml" \
