@@ -1,4 +1,7 @@
 ---
+- name: make sure git is installed
+  package: name=git
+
 # set up system to perform last-mile configuration after first boot
 # skip if there's no playbook repo set.
 - name: install post-imaging playbook for use later
