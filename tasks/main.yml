@@ -51,3 +51,9 @@
 - name: drop systemd service to do post-launch configuration
   include_role: name=tumf.systemd-service
   when: 'bootstrap_docker_testing != true'
+
+- name: enable but don't start the post-launch service
+  systemd:
+    name: '{{ systemd_service_name }}'
+    state: stopped
+    enabled: yes

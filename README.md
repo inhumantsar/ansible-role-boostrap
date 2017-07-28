@@ -10,4 +10,6 @@ Sets up a systemd service to run a specified Ansible playbook on boot.
 
 ## How?
 
-... basic usage instructions ...
+### requirements
+
+* systemd-based distro

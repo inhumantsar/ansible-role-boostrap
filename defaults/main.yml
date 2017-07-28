@@ -18,7 +18,7 @@ bootstrap_playbook_path: '/opt/bootstrap/playbook'
 
 
 # for the startup service
-systemd_service_name: 'ansible-boot'
+systemd_service_name: 'ansible-bootstrap'
 systemd_service_Unit_Description: 'Run ansible-pull at boot to do post-launch configuration'
 systemd_service_Service_ExecStartPre: '-/usr/bin/ansible-galaxy install -f -r /opt/bootstrap/playbook/requirements.yml'
 # -f: run even if the playbook repo couldn't be updated, for running behind firewalls
