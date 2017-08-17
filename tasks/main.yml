@@ -8,6 +8,8 @@
   git:
     repo: '{{ bootstrap_playbook_repo }}'
     dest: '{{bootstrap_playbook_path}}'
+    accept_hostkey: 'yes'
+    key_file: '{{ bootstrap_playbook_keyfile | default(omit) }}'
   when: 'bootstrap_playbook_repo != ""'
 
 - name: create playbook directory when not cloning repo

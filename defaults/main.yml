@@ -3,6 +3,7 @@
 # (ie: after image creation)
 bootstrap_playbook_repo: ''
 bootstrap_playbook_vars: {}
+# bootstrap_playbook_keyfile: ''      # set if not using public repos
 bootstrap_playbook_content:           # written to playbook.yml if repo is blank
   - name: Dummy playbook
     hosts: all
@@ -29,7 +30,8 @@ systemd_service_Service_ExecStart: |
   -c local -i "localhost," \
   -e "@/opt/bootstrap/playbook_vars.yml" \
   -U {{ bootstrap_playbook_repo }} \
-  -d /opt/bootstrap/playbook
+  -d /opt/bootstrap/playbook \
+  --key-file="{{ bootstrap_playbook_keyfile | default('') }}"
 
 # the systemd role fails under docker because d-bus operations aren't permitted.
 # since it's reasonable to assume that the systemd role is tested (at least as far
