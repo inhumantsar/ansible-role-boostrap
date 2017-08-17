@@ -13,8 +13,8 @@ There are four key variables which control thsi:
 * `bootstrap_playbook_repo` - SSH or HTTP(S) git URL for the playbook (optional)
 * `bootstrap_playbook_vars` - Writes this dictionary to a playbook vars file (optional)
 * `bootstrap_playbook_keyfile` - Path to a private key if the git repo is not publicly available.
-* `bootstrap_playbook_content` - For simple playbooks. Not to be used with `bootstrap_playbook_repo`.
-  * Example: ```
+* `bootstrap_playbook_content` - For simple playbooks. Not to be used with `bootstrap_playbook_repo`. Example:
+```yaml
   - name: Dummy playbook
     hosts: all
     connection: local
