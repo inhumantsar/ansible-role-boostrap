@@ -51,7 +51,20 @@
 
 # this will always fail under docker because systemd
 - name: drop systemd service to do post-launch configuration
-  include_role: name=tumf.systemd-service
+  include_role:
+    name: tumf.systemd-service
+    vars:
+      systemd_service_name: 'ansible-bootstrap'
+      systemd_service_Unit_Description: 'Run ansible-pull at boot to do post-launch configuration'
+      systemd_service_Service_ExecStartPre: '-/usr/bin/ansible-galaxy install -f -r /opt/bootstrap/playbook/requirements.yml'
+      systemd_service_Service_ExecStart: |
+        /usr/bin/ansible-pull \
+        -f -s 15 \
+        -c local -i "localhost," \
+        -e "@/opt/bootstrap/playbook_vars.yml" \
+        -U {{ bootstrap_playbook_repo }} \
+        -d /opt/bootstrap/playbook \
+        --key-file="{{ bootstrap_playbook_keyfile | default('') }}"
   when: 'bootstrap_docker_testing != true'
 
 - name: enable but don't start the post-launch service

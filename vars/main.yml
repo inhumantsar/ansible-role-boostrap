@@ -1,15 +1,2 @@
 ---
-# for the startup service
-systemd_service_name: 'ansible-bootstrap'
-systemd_service_Unit_Description: 'Run ansible-pull at boot to do post-launch configuration'
-systemd_service_Service_ExecStartPre: '-/usr/bin/ansible-galaxy install -f -r /opt/bootstrap/playbook/requirements.yml'
-# -f: run even if the playbook repo couldn't be updated, for running behind firewalls
-# -s 15: sleep a random amount of time between 0 and 15s to spread out git operations on large spin-up
-systemd_service_Service_ExecStart: |
-  /usr/bin/ansible-pull \
-  -f -s 15 \
-  -c local -i "localhost," \
-  -e "@/opt/bootstrap/playbook_vars.yml" \
-  -U {{ bootstrap_playbook_repo }} \
-  -d /opt/bootstrap/playbook \
-  --key-file="{{ bootstrap_playbook_keyfile | default('') }}"
+# vars file for bootstrap
