@@ -56,6 +56,6 @@
 
 - name: enable but don't start the post-launch service
   systemd:
-    name: '{{ systemd_service_name }}'
+    name: 'ansible-bootstrap'
     state: stopped
     enabled: yes
