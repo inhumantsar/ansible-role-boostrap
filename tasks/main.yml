@@ -56,6 +56,7 @@
   vars:
     systemd_service_name: 'ansible-bootstrap'
     systemd_service_Unit_Description: 'Run ansible-pull at boot to do post-launch configuration'
+    systemd_service_Unit_Requires: 'network-online.target'
     systemd_service_Service_ExecStartPre: '-/usr/bin/ansible-galaxy install -f -r /opt/bootstrap/playbook/requirements.yml'
     systemd_service_Service_ExecStart: |
       /usr/bin/ansible-pull \
